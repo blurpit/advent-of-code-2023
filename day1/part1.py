@@ -16,7 +16,7 @@ def get_calibration_num(line: str) -> int:
 
 if __name__ == '__main__':
     answer = 0
-    with open('input1.txt', 'r') as file:
+    with open('input.txt', 'r') as file:
         for line in file.readlines():
             answer += get_calibration_num(line)
     print('Answer:', answer)
