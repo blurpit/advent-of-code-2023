@@ -56,11 +56,11 @@ class Graph:
         self.vertices.add(v)
         self.vertices.add(w)
         if v not in self.edges:
-            self.edges[v] = set()
-        self.edges[v].add(w)
+            self.edges[v] = []
+        self.edges[v].append(w)
 
     def get_neighbors(self, v):
-        return self.edges.get(v, set())
+        return self.edges.get(v, [])
 
     def wfs(self, s, bag: Bag, on_marked):
         marked = set()
