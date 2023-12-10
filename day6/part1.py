@@ -21,17 +21,14 @@ since v = t
 -t^2 - Tt - R > 0
 [quadratic formula]
 roots:
-    t = T/2 + sqrt(T^2 - 4R)
-    t = T/2 - sqrt(T^2 - 4R)
+    t = T/2 + sqrt(T^2 - 4R)/2
+    t = T/2 - sqrt(T^2 - 4R)/2
 therefore d(t) > R for all t where
 T/2 - sqrt(T^2 - 4R) < t < T/2 + sqrt(T^2 - 4R)
 """
 
-def get_range(time, record):
-    return math.sqrt(time**2 - 4*record)
-
 def get_ways_to_win(time, record):
-    r = get_range(time, record)
+    r = math.sqrt(time**2 - 4*record)
     lower = time/2 - r/2
     upper = time/2 + r/2
 

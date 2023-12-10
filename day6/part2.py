@@ -5,11 +5,8 @@ import re
 see part 1 for math
 """
 
-def get_range(time, record):
-    return math.sqrt(time**2 - 4*record)
-
 def get_ways_to_win(time, record):
-    r = get_range(time, record)
+    r = math.sqrt(time**2 - 4*record)
     lower = time/2 - r/2
     upper = time/2 + r/2
 
