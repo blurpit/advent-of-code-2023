@@ -30,6 +30,9 @@ class Stack(Bag):
     def __bool__(self):
         return len(self) > 0
 
+    def __str__(self):
+        return str(self._data)
+
 class Queue(Bag):
     def __init__(self):
         self._data = deque()
@@ -45,6 +48,9 @@ class Queue(Bag):
 
     def __bool__(self):
         return len(self) > 0
+
+    def __str__(self):
+        return str(self._data)
 
 
 class Graph:
@@ -72,3 +78,10 @@ class Graph:
                 on_marked(v)
                 for w in self.get_neighbors(v):
                     bag.push(w)
+
+    def __str__(self):
+        s = 'Graph {\n'
+        for v, nbrs in self.edges.items():
+            s += '\t{} -> {}\n'.format(v, ' '.join(map(str, nbrs)))
+        s += '}'
+        return s
