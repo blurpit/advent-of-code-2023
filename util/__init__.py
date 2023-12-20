@@ -68,6 +68,9 @@ class Graph:
     def get_neighbors(self, v):
         return self.edges.get(v, [])
 
+    def has_edge(self, v, w):
+        return w in self.edges.get(v, ())
+
     def wfs(self, s, bag: Bag, on_marked):
         marked = set()
         bag.push(s)
