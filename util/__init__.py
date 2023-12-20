@@ -73,14 +73,17 @@ class Graph:
 
     def wfs(self, s, bag: Bag, on_marked):
         marked = set()
-        bag.push(s)
+        bag.push((None, s))
+        parent = dict()
         while bag:
-            v = bag.pop()
+            p, v = bag.pop()
             if v not in marked:
                 marked.add(v)
+                parent[v] = p
                 on_marked(v)
                 for w in self.get_neighbors(v):
-                    bag.push(w)
+                    bag.push((v, w))
+        return parent
 
     def __str__(self):
         s = 'Graph {\n'
