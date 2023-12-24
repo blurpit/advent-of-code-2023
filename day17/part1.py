@@ -124,7 +124,7 @@ def print_path(path):
     print()
 
 if __name__ == '__main__':
-    with open('input.txt') as file:
+    with open('sample.txt') as file:
         grid = parse_grid(file.read())
         width = len(grid[0])
         height = len(grid)
@@ -142,7 +142,7 @@ if __name__ == '__main__':
         for dir_i in range(4):
             for steps in range(4):
                 v = [width-1, height-1, 0, 0, 0, 0]
-                v[dir_i] = steps
+                v[dir_i + 2] = steps
                 v = tuple(v)
                 d = dist.get(v, inf)
                 if d < answer:
