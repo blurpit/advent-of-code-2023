@@ -145,6 +145,15 @@ class Graph:
     def vertices(self):
         return self.edges.keys()
 
+    def num_vertices(self):
+        return len(self.edges)
+
+    def num_edges(self):
+        e = 0
+        for adj in self.edges.values():
+            e += len(adj)
+        return e
+
     def __str__(self):
         s = 'Graph {\n'
         for v, nbrs in self.edges.items():
