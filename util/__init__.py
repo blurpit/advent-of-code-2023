@@ -57,9 +57,12 @@ class Queue(Bag):
 
 class Graph:
     def __init__(self):
+        self.vertices = set()
         self.edges = dict()
 
     def add_edge(self, u, v, weight):
+        self.vertices.add(u)
+        self.vertices.add(v)
         if u not in self.edges:
             self.edges[u] = {}
         self.edges[u][v] = weight
@@ -141,12 +144,8 @@ class Graph:
         path.reverse()
         return path
 
-    @property
-    def vertices(self):
-        return self.edges.keys()
-
     def num_vertices(self):
-        return len(self.edges)
+        return len(self.vertices)
 
     def num_edges(self):
         e = 0
