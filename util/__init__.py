@@ -1,4 +1,5 @@
 from collections import deque
+from math import inf
 from queue import PriorityQueue
 
 
@@ -66,8 +67,11 @@ class Graph:
     def get_neighbors(self, u):
         return self.edges.get(u, {}).items()
 
-    def has_edge(self, v, w):
-        return w in self.edges.get(v, {})
+    def has_edge(self, u, v):
+        return v in self.edges.get(u, {})
+
+    def edge_weight(self, u, v):
+        return self.edges.get(u, {}).get(v, inf)
 
     def wfs(self, s, bag: Bag, on_marked):
         marked = set()
@@ -82,6 +86,60 @@ class Graph:
                 for v, _ in self.get_neighbors(u):
                     bag.push((u, v))
         return pred
+
+    def _init_sssp(self, s):
+        dist = {}
+        pred = {}
+        for v in self.vertices:
+            dist[v] = inf
+            pred[v] = None
+        dist[s] = 0
+        return dist, pred
+
+    def dijkstra(self, s):
+        """
+        Implementation of Dijkstra's single source shortest path algorithm starting at vertex s.
+        Returns (dist, pred). Dist is a dictionary mapping each vertex to the distance to s. Pred
+        is a dictionary mapping each vertex to its predecessor vertex in the shortest path from s.
+        Requires non-negative edge weights!!! """
+        dist, pred = self._init_sssp(s)
+
+        pq = PriorityQueue()
+        for v in self.vertices:
+            pq.put((dist[v], v))
+
+        while pq.qsize() > 0:
+            _, u = pq.get()
+            u_dist = dist[u]
+            for v, weight in self.get_neighbors(u):
+                # u->v is tense if dist(u) + w(u->v) < dist(v)
+                relaxed_dist = u_dist + self.edge_weight(u, v)
+                if relaxed_dist < dist[v]:
+                    dist[v] = relaxed_dist
+                    pred[v] = u
+                    pq.put((relaxed_dist, v))
+
+        return dist, pred
+
+    def path_weight(self, path):
+        """ Given a path s ~> v (list of vertices along the path), returns the
+            total weight of all edges along the path """
+        weight = 0
+        for i in range(len(path) - 1):
+            u = path[i]
+            v = path[i+1]
+            weight += self.edge_weight(u, v)
+        return weight
+
+    @staticmethod
+    def get_path(pred, v):
+        """ Returns a path from s ~> v given a predecessor dict """
+        path = []
+        while v is not None:
+            path.append(v)
+            v = pred[v]
+        path.reverse()
+        return path
 
     @property
     def vertices(self):
