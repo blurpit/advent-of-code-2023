@@ -83,6 +83,10 @@ class Graph:
                     bag.push((u, v))
         return pred
 
+    @property
+    def vertices(self):
+        return self.edges.keys()
+
     def __str__(self):
         s = 'Graph {\n'
         for v, nbrs in self.edges.items():
