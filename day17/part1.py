@@ -1,4 +1,3 @@
-from queue import PriorityQueue
 from math import inf
 
 from util import Graph
@@ -124,7 +123,7 @@ def print_path(path):
     print()
 
 if __name__ == '__main__':
-    with open('sample.txt') as file:
+    with open('input.txt') as file:
         grid = parse_grid(file.read())
         width = len(grid[0])
         height = len(grid)
