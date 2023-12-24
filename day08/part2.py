@@ -8,8 +8,8 @@ from util import Graph
 def build_graph(edges):
     g = Graph()
     for root, left, right in edges:
-        g.add_edge(root, left)
-        g.add_edge(root, right)
+        g.add_edge(root, left, 1)
+        g.add_edge(root, right, 1)
     return g
 
 def parse_edge(line):
@@ -18,6 +18,14 @@ def parse_edge(line):
     left = m.group(2)
     right = m.group(3)
     return root, left, right
+
+def get_left_right(neighbors):
+    if len(neighbors) == 2:
+        (left, _), (right, _) = neighbors
+    else:
+        (left, _), = neighbors
+        right = left
+    return left, right
 
 def get_all_a(vertices):
     return [
@@ -31,7 +39,7 @@ def path_length(graph, start, instructions):
     steps = 0
     while not vertex[-1] == 'Z':
         instruction = next(instructions)
-        left, right = graph.get_neighbors(vertex)
+        left, right = get_left_right(graph.get_neighbors(vertex))
         if instruction == 'L':
             vertex = left
         else:

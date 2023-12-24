@@ -7,8 +7,8 @@ from util import Graph
 def build_graph(edges):
     g = Graph()
     for root, left, right in edges:
-        g.add_edge(root, left)
-        g.add_edge(root, right)
+        g.add_edge(root, left, 1)
+        g.add_edge(root, right, 1)
     return g
 
 def parse_edge(line):
@@ -18,12 +18,20 @@ def parse_edge(line):
     right = m.group(3)
     return root, left, right
 
+def get_left_right(neighbors):
+    if len(neighbors) == 2:
+        (left, _), (right, _) = neighbors
+    else:
+        (left, _), = neighbors
+        right = left
+    return left, right
+
 def follow_instructions(graph, instructions):
     instructions = itertools.cycle(instructions)
     steps = 0
     vertex = 'AAA'
     while vertex != 'ZZZ':
-        left, right = graph.get_neighbors(vertex)
+        left, right = get_left_right(graph.get_neighbors(vertex))
         if next(instructions) == 'L':
             vertex = left
         else:
