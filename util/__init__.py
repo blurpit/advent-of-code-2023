@@ -1,4 +1,5 @@
 from collections import deque
+from queue import PriorityQueue
 
 
 class Bag:
@@ -55,35 +56,32 @@ class Queue(Bag):
 
 class Graph:
     def __init__(self):
-        self.vertices = set()
         self.edges = dict()
 
-    def add_edge(self, v, w):
-        self.vertices.add(v)
-        self.vertices.add(w)
-        if v not in self.edges:
-            self.edges[v] = []
-        self.edges[v].append(w)
+    def add_edge(self, u, v, weight):
+        if u not in self.edges:
+            self.edges[u] = {}
+        self.edges[u][v] = weight
 
-    def get_neighbors(self, v):
-        return self.edges.get(v, [])
+    def get_neighbors(self, u):
+        return self.edges.get(u, {}).items()
 
     def has_edge(self, v, w):
-        return w in self.edges.get(v, ())
+        return w in self.edges.get(v, {})
 
     def wfs(self, s, bag: Bag, on_marked):
         marked = set()
         bag.push((None, s))
-        parent = dict()
+        pred = dict()
         while bag:
-            p, v = bag.pop()
-            if v not in marked:
-                marked.add(v)
-                parent[v] = p
-                on_marked(v)
-                for w in self.get_neighbors(v):
-                    bag.push((v, w))
-        return parent
+            p, u = bag.pop()
+            if u not in marked:
+                marked.add(u)
+                pred[u] = p
+                on_marked(u)
+                for v, _ in self.get_neighbors(u):
+                    bag.push((u, v))
+        return pred
 
     def __str__(self):
         s = 'Graph {\n'
