@@ -76,6 +76,15 @@ class Graph:
     def edge_weight(self, u, v):
         return self.edges.get(u, {}).get(v, inf)
 
+    def reverse(self):
+        edges = {}
+        for u, nbrs in self.edges.items():
+            for v, weight in nbrs.items():
+                if v not in edges:
+                    edges[v] = {}
+                edges[v][u] = weight
+        self.edges = edges
+
     def wfs(self, s, bag: Bag, on_marked):
         marked = set()
         bag.push((None, s))
