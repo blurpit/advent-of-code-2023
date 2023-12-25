@@ -85,6 +85,13 @@ class Graph:
                 edges[v][u] = weight
         self.edges = edges
 
+    def delete_vertex(self, u):
+        # remove edges v -> u
+        for v, _ in self.get_neighbors(u):
+            self.edges.get(v, {}).pop(u, None)
+        # remove edges u -> v
+        self.edges.pop(u, None)
+
     def wfs(self, s, bag: Bag, on_marked):
         marked = set()
         bag.push((None, s))
