@@ -10,8 +10,12 @@ def combinations(wf, bounds: dict):
             or m_min >= m_max
             or a_min >= a_max
             or s_min >= s_max):
+        # Invalid bounds or we ended at R
         return 0
     elif wf == 'A':
+        # Combinations is the number of possible combinations of numbers within
+        # the bounds (ie multiply the bounds together). Add 1 because bounds
+        # are inclusive.
         return ((x_max - x_min + 1)
                 * (m_max - m_min + 1)
                 * (a_max - a_min + 1)
@@ -21,21 +25,25 @@ def combinations(wf, bounds: dict):
     rules, fallback = workflows[wf]
 
     for rating, comp, num, send in rules:
-        r_min, r_max = bounds[rating]
-        new_bounds = bounds.copy()
+        r_min, r_max = bounds[rating] # bounds for this rule's rating
+        new_bounds = bounds.copy() # bounds where this rule passes
 
         if comp == '<':
-            # Restrict
+            # Restrict passing bounds (new_bounds) to numbers less than num
+            # Restrict failing bounds (bounds) to numbers not less than num
             new_bounds[rating] = (r_min, num-1)
             bounds[rating] = (num, r_max)
 
         elif comp == '>':
+            # Restrict passing bounds (new_bounds) to numbers greater than num
+            # Restrict failing bounds (bounds) to numbers not greater than num
             new_bounds[rating] = (num+1, r_max)
             bounds[rating] = (r_min, num)
 
+        # Add combinations where this rule passes
         comb += combinations(send, new_bounds)
 
-    # Add fallback with remaining bounds
+    # Add fallback combinations, where all rules fail
     comb += combinations(fallback, bounds.copy())
 
     return comb
