@@ -67,7 +67,7 @@ class Graph:
             self.edges[u] = {}
         self.edges[u][v] = weight
 
-    def get_neighbors(self, u):
+    def get_neighbors(self, u, d=None):
         return self.edges.get(u, {}).items()
 
     def has_edge(self, u, v):
@@ -94,16 +94,16 @@ class Graph:
 
     def wfs(self, s, bag: Bag, on_marked):
         marked = set()
-        bag.push((None, s))
+        bag.push((None, s, 0))
         pred = dict()
         while bag:
-            p, u = bag.pop()
+            p, u, d = bag.pop()
             if u not in marked:
                 marked.add(u)
                 pred[u] = p
-                on_marked(u)
-                for v, _ in self.get_neighbors(u):
-                    bag.push((u, v))
+                on_marked(u, d)
+                for v, cost in self.get_neighbors(u, d):
+                    bag.push((u, v, d + cost))
         return pred
 
     def _init_sssp(self, s):
