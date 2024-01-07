@@ -158,6 +158,31 @@ class Graph:
         path.reverse()
         return path
 
+    def topo_sort_wfs(self, s):
+        """ Get a topological order for only vertices reachable from s """
+        order = []
+        self._top_sort_dfs(set(), order, s)
+        order.reverse()
+        return order
+
+    def topo_sort(self):
+        """ Get a topological order for this graph. Requires that the graph is a DAG """
+        order = []
+        marked = set()
+        for u in self.vertices:
+            if u not in marked:
+                self._top_sort_dfs(marked, order, u)
+        order.reverse()
+        return order
+
+    def _top_sort_dfs(self, marked, order, u):
+        """ Helper function for topo sorting """
+        marked.add(u)
+        for v, _ in self.get_neighbors(u):
+            if v not in marked:
+                self._top_sort_dfs(marked, order, v)
+        order.append(u)
+
     def num_vertices(self):
         return len(self.vertices)
 
