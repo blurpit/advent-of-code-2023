@@ -90,6 +90,21 @@ class Graph:
         # remove edges u -> v
         self.edges.pop(u, None)
 
+    def has_cycle(self, s):
+        """ Returns true if there is a cycle reachable from s """
+        marked = set()
+        bag = Stack() # dfs
+        bag.push(s)
+        while bag:
+            u = bag.pop()
+            if u not in marked:
+                marked.add(u)
+                for v, _ in self.get_neighbors(u):
+                    if v in marked:
+                        return True
+                    bag.push(v)
+        return False
+
     def wfs(self, s, bag: Bag, on_marked):
         marked = set()
         bag.push((None, s, 0))
