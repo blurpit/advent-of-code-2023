@@ -76,6 +76,11 @@ class Graph:
     def edge_weight(self, u, v):
         return self.edges.get(u, {}).get(v, inf)
 
+    def iter_edges(self):
+        for u, nbrs in self.edges.items():
+            for v, weight in nbrs.items():
+                yield u, v, weight
+
     def reversed(self):
         g = Graph()
         for u, nbrs in self.edges.items():
@@ -206,6 +211,25 @@ class Graph:
         for adj in self.edges.values():
             e += len(adj)
         return e
+
+    def is_connected(self):
+        visited = set()
+        def mark(v, _):
+            visited.add(v)
+        self.wfs(next(iter(self.vertices)), Stack(), mark)
+        return visited == self.vertices
+
+    def is_undirected(self):
+        for u, v, _ in self.iter_edges():
+            if not self.has_edge(v, u):
+                return False
+        return True
+
+    def copy(self):
+        g = Graph()
+        for u, v, weight in self.iter_edges():
+            g.add_edge(u, v, weight)
+        return g
 
     def __str__(self):
         s = 'Graph {\n'
