@@ -67,14 +67,21 @@ class Graph:
             self.edges[u] = {}
         self.edges[u][v] = weight
 
+    def add_undirected_edge(self, u, v, weight):
+        self.add_edge(u, v, weight)
+        self.add_edge(v, u, weight)
+
     def get_neighbors(self, u, d=None):
         return self.edges.get(u, {}).items()
 
     def has_edge(self, u, v):
         return v in self.edges.get(u, {})
 
-    def edge_weight(self, u, v):
+    def get_weight(self, u, v):
         return self.edges.get(u, {}).get(v, inf)
+
+    def set_weight(self, u, v, weight):
+        self.edges[u][v] = weight
 
     def iter_edges(self):
         for u, nbrs in self.edges.items():
@@ -150,7 +157,7 @@ class Graph:
             u_dist = dist[u]
             for v, weight in self.get_neighbors(u):
                 # u->v is tense if dist(u) + w(u->v) < dist(v)
-                relaxed_dist = u_dist + self.edge_weight(u, v)
+                relaxed_dist = u_dist + self.get_weight(u, v)
                 if relaxed_dist < dist[v]:
                     dist[v] = relaxed_dist
                     pred[v] = u
