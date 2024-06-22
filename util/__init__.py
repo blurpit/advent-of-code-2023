@@ -1,3 +1,5 @@
+import math
+import random
 from collections import deque
 from math import inf
 from queue import PriorityQueue
@@ -61,6 +63,7 @@ class Graph(Generic[Vertex]):
     def __init__(self):
         self.vertices: set[Vertex] = set()
         self.edges: dict[Vertex, dict[Vertex, Weight]] = dict()
+        self._total_weight = 0
 
     def add_edge(self, u: Vertex, v: Vertex, weight: Weight) -> None:
         self.vertices.add(u)
@@ -68,6 +71,7 @@ class Graph(Generic[Vertex]):
         if u not in self.edges:
             self.edges[u] = {}
         self.edges[u][v] = weight
+        self._total_weight += weight
 
     def add_undirected_edge(self, u: Vertex, v: Vertex, weight: Weight) -> None:
         self.add_edge(u, v, weight)
@@ -83,6 +87,8 @@ class Graph(Generic[Vertex]):
         return self.edges.get(u, {}).get(v, inf)
 
     def set_weight(self, u: Vertex, v: Vertex, weight: Weight) -> None:
+        self._total_weight -= self.edges[u][v]
+        self._total_weight += weight
         self.edges[u][v] = weight
 
     def iter_edges(self) -> Iterable[tuple[Vertex, Vertex, Weight]]:
@@ -99,10 +105,12 @@ class Graph(Generic[Vertex]):
 
     def delete_vertex(self, u: Vertex) -> None:
         # remove edges v -> u
-        for v, _ in self.get_neighbors(u):
+        for v, weight in self.get_neighbors(u):
             self.edges.get(v, {}).pop(u, None)
+            self._total_weight -= weight
         # remove edges u -> v
-        self.edges.pop(u, None)
+        nbrs = self.edges.pop(u, {})
+        self._total_weight -= sum(nbrs.values())
         self.vertices.remove(u)
 
     def has_cycle(self, s: Vertex) -> bool:
@@ -218,7 +226,62 @@ class Graph(Generic[Vertex]):
                 self._top_sort_dfs(marked, order, v)
         order.append(u)
 
-    def num_vertices(self):
+    def karger(self, run_until=None) -> tuple[set[Vertex], set[Vertex], int]:
+        """
+        Implementation of Karger's minimum cut algorithm. Returns two sets of vertices that partition
+        the graph into two disconnected components with a minimum cut, as well as the number of cuts.
+
+        The graph must be undirected and connected.
+        """
+        MergedVert = tuple[Vertex, ...]
+        Edge = tuple[MergedVert, MergedVert]
+
+        def contract(edges: list[Edge], s: MergedVert, t: MergedVert):
+            """ Contracts an edge according to Karger's algorithm """
+            st = s + t
+            i = 0
+            while i < len(edges):
+                u, v = edges[i]
+                if u == s and v == t or u == t and v == s:
+                    # self loop, delete edge
+                    edges[i], edges[-1] = edges[-1], edges[i]
+                    edges.pop()
+                    i -= 1
+                elif u == s or u == t:
+                    edges[i] = (st, v)
+                elif v == s or v == t:
+                    edges[i] = (st, u)
+                i += 1
+
+        edge_set = dict()
+        for u, v, weight in self.iter_edges():
+            if (v, u) not in edge_set:
+                edge_set[(u, v)] = weight
+
+        edges: list[Edge] = []
+        for (u, v), weight in edge_set.items():
+            for _ in range(weight):
+                edges.append(((u,), (v,)))
+
+        i = 1
+        n = self.num_vertices()
+        num_runs = math.ceil((n * (n - 1) / 2) * math.log(n))
+        while True:
+            edge_copy = edges.copy()
+            for _ in range(self.num_vertices() - 2):
+                s, t = random.choice(edge_copy)
+                contract(edge_copy, s, t)
+
+            print(f'Run {i}: {len(edge_copy)}')
+            if i >= num_runs or (run_until is not None and len(edge_copy) <= run_until):
+                result = edge_copy
+                break
+            i += 1
+
+        c1, c2 = result[0]
+        return set(c1), set(c2), len(result)
+
+    def num_vertices(self) -> int:
         return len(self.vertices)
 
     def num_edges(self) -> int:
@@ -228,7 +291,10 @@ class Graph(Generic[Vertex]):
         return e
 
     def total_weight(self) -> Weight:
-        return sum(w for _, _, w in self.iter_edges())
+        # w = sum(w for _, _, w in self.iter_edges())
+        # if w != self._total_weight:
+        #     raise AssertionError(f"Expected {w} got {self._total_weight}")
+        return self._total_weight
 
     def is_connected(self) -> bool:
         visited = set()
@@ -243,6 +309,9 @@ class Graph(Generic[Vertex]):
                 return False
         return True
 
+    def is_unweighted(self) -> bool:
+        return all(weight == 1 for _, _, weight in self.iter_edges())
+
     def copy(self) -> Self:
         g = Graph()
         for u, v, weight in self.iter_edges():
@@ -252,6 +321,7 @@ class Graph(Generic[Vertex]):
     def __str__(self) -> str:
         s = 'Graph {\n'
         for v, nbrs in self.edges.items():
-            s += '\t{} -> {}\n'.format(v, ' '.join(map(str, nbrs)))
+            nbrs = ('{}:{}'.format(nbr, wgt) for nbr, wgt in nbrs.items())
+            s += '\t{} -> {}\n'.format(v, ' '.join(nbrs))
         s += '}'
         return s
